@@ -68,7 +68,7 @@ class CacheManager implements BaseCacheManager {
   /// file is too old the file is downloaded and returned after download.
   /// When a cached file is not available the newly downloaded file is returned.
   @override
-  Future<File> getSingleFile(
+  Future<FileInfo> getSingleFile(
     String url, {
     String? key,
     Map<String, String>? headers,
@@ -76,9 +76,9 @@ class CacheManager implements BaseCacheManager {
     key ??= url;
     final cacheFile = await getFileFromCache(key);
     if (cacheFile != null && cacheFile.validTill.isAfter(DateTime.now())) {
-      return cacheFile.file;
+      return cacheFile;
     }
-    return (await downloadFile(url, key: key, authHeaders: headers)).file;
+    return (await downloadFile(url, key: key, authHeaders: headers));
   }
 
   /// Get the file from the cache and/or online, depending on availability and age.
