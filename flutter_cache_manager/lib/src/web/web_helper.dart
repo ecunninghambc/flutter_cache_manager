@@ -139,11 +139,33 @@ class WebHelper {
       newCacheObject = newCacheObject.copyWith(length: savedBytes);
     }
 
+    final completer = Completer<void>();
+
     _store.putFile(newCacheObject).then((_) {
       if (newCacheObject.relativePath != oldCacheObject.relativePath) {
         _removeOldFile(oldCacheObject.relativePath);
       }
+      completer.complete();
     });
+
+    try {
+      await completer.future;
+    } on Object catch (e, stacktrace) {
+      cacheLogger.log(
+        'CacheManager: Failed to store file ${cacheObject.url} with error $e',
+        CacheManagerLogLevel.error,
+        error: e,
+        stackTrace: stacktrace,
+      );
+      yield FileInfo(
+        null,
+        FileSource.Online,
+        newCacheObject.validTill,
+        newCacheObject.url,
+        statusCode: response.statusCode,
+        error: e,
+      );
+    }
 
     final file = await _store.fileSystem.createFile(
       newCacheObject.relativePath,
