@@ -139,3 +139,6 @@ app.*.map.json
 
 # Injection generated files
 injectable.config.dart
+
+# FVM Version Cache
+.fvm/
