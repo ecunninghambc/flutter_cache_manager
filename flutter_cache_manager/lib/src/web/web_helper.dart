@@ -148,28 +148,19 @@ class WebHelper {
       completer.complete();
     });
 
-    try {
-      await completer.future;
-    } on Object catch (e, stacktrace) {
-      cacheLogger.log(
-        'CacheManager: Failed to store file ${cacheObject.url} with error $e',
-        CacheManagerLogLevel.error,
-        error: e,
-        stackTrace: stacktrace,
-      );
-      yield FileInfo(
-        null,
-        FileSource.Online,
-        newCacheObject.validTill,
-        newCacheObject.url,
-        statusCode: response.statusCode,
-        error: e,
-      );
-    }
-
     final file = await _store.fileSystem.createFile(
       newCacheObject.relativePath,
     );
+
+    try {
+      await completer.future;
+    } on Object catch (e) {
+      cacheLogger.log(
+          'CacheManager: Failed to store file ${cacheObject.url} with error $e',
+          CacheManagerLogLevel.debug);
+      throw Exception('Failed to store file ${cacheObject.url} with error $e');
+    }
+
     yield FileInfo(
       file,
       FileSource.Online,
